@@ -9,29 +9,29 @@ server.listen(8050, 'localhost', () => {
 server.on('request', (request, response) => {
   console.log('------- METHODS -------');
   console.log(`Method:`, request.method);
-  
-  console.log('------- HEADERS -------');
-  console.log(`Method:`, request.headers);
-  
-  console.log('------- NAME -------');
-  console.log(`Name:`, request.name);
+
+  console.log('------- HTTP VERSION -------');
+  console.log(`Version:`, request.httpVersion);
   
   console.log('------- URL -------');
   console.log(`URL:`, request.url);
   
-  console.log('------- HTTP VERSION -------');
-  console.log(`Version:`, request.httpVersion);
+  const name = request.headers.name.toString("utf-8");
+  let data = '';
   
-  console.log('------- ARGUMENTS -------');
-  console.log(`Arguments:`, request.arguments);
-  
-  console.log('------- CALLER -------');
-  console.log(`Caller:`, request.caller);
-  
-  console.log('------- BODY as a Stream -------');
+  // Collecting Data
   request.on('data', chunk => {
-    console.log(chunk.toString('utf-8'));
+    data += chunk.toString();
   });
   
-  
+  console.log('------- BODY -------');
+  request.on('end', () => {
+    console.log(data);
+    data = JSON.parse(data);
+    const postTitle = data.title.toString("utf-8");
+    
+    // Response
+    response.writeHead(200, 'Success', {'Content-Type': 'application/json'});
+    response.write(JSON.stringify({message: `Post Title: ${postTitle} created by ${name}`}));
+  });
 });
